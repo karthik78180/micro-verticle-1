@@ -1,0 +1,7 @@
+{
+    "artifactId": "micro-verticle-1",
+    "version": "1.0.0",
+    "description": "Sample verticle for demo",
+    "verticleClass": "com.example.verticles.SampleVerticle",
+  "address": "ReadHelloWorld.v1"
+}

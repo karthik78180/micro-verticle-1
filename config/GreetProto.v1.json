@@ -1,0 +1,7 @@
+{
+  "artifactId": "micro-verticle-1",
+  "version": "1.0.0",
+  "description": "Verticle for Protobuf demo",
+  "verticleClass": "com.example.verticles.ProtoVerticle",
+  "address": "GreetProto.v1"
+}

@@ -1,0 +1,7 @@
+syntax = "proto3";
+package com.example.protobuf;
+option java_outer_classname = "GreetMessages";
+
+message GreetRequest {
+  string name = 1;
+}

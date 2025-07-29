@@ -1,0 +1,60 @@
+plugins {
+    id 'java'
+    id 'com.google.protobuf' version '0.9.5'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'com.example'
+version = '1.0.0'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.example:vertx-on-demand:1.0.0'
+    implementation 'io.vertx:vertx-core:5.0.1'
+    implementation 'io.vertx:vertx-web:5.0.1'
+    implementation 'com.google.protobuf:protobuf-java:4.31.1'
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+
+shadowJar {
+    archiveClassifier.set('all')
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.31.1"
+    }
+    generatedFilesBaseDir = "$buildDir/generated/sources/proto"
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += "$buildDir/generated/sources/proto/main/java"
+        }
+        proto {
+            srcDirs = ['src/main/proto']
+        }
+    }
+}
+
+clean {
+    delete "$buildDir/generated/sources/proto"
+}
+
+tasks.withType(JavaCompile) {
+    dependsOn 'generateProto'
+}
+
+shadowJar {
+    archiveClassifier.set('all')
+    mergeServiceFiles()
+    from "$buildDir/generated/sources/proto/main/java"
+}
