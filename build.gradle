@@ -28,11 +28,46 @@ shadowJar {
 }
 
 protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:4.31.1"
+  protoc {
+    artifact = 'com.google.protobuf:protoc:4.31.1'
+  }
+
+  // pick one place for this (you had it twice)
+  generatedFilesBaseDir = "$projectDir/build/generated"
+
+  plugins {
+    // ⬅️ use the plugin name as a block (no id('...'))
+    doc {
+      artifact = 'io.github.pseudomuto:protoc-gen-doc:1.5.1'
     }
-    generatedFilesBaseDir = "$buildDir/generated/sources/proto"
+    // grpc { artifact = 'io.grpc:protoc-gen-grpc-java:1.66.0' }
+  }
+
+  generateProtoTasks {
+    all().each { task ->
+      task.builtins {
+        // either of these is fine in Groovy:
+        // id 'java'
+        java {}
+      }
+      task.plugins {
+        // ⬅️ again, no id('doc')
+        doc {
+          outputSubDir = 'docs'
+          option 'html,index.html'
+        }
+        // grpc {}
+      }
+    }
+  }
 }
+
+
+tasks.register('copyProtoDocs', Copy) {
+  from layout.buildDirectory.dir('generated/docs')
+  into layout.buildDirectory.dir('docs/protobuf')
+}
+tasks.named('build') { dependsOn 'copyProtoDocs' }
 
 sourceSets {
     main {
