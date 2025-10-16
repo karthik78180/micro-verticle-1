@@ -2,6 +2,42 @@ syntax = "proto3";
 package com.example.protobuf;
 option java_outer_classname = "GreetMessages";
 
+// A more feature-rich greet request
 message GreetRequest {
-  string name = 1;
+  string name = 1; // person's name
+  int32 age = 2; // optional age information
+  repeated string tags = 3; // arbitrary tags
+
+  // Nested address message
+  message Address {
+    string street = 1;
+    string city = 2;
+    string country = 3;
+  }
+
+  Address address = 4;
+
+  // Map of custom attributes
+  map<string, string> attrs = 5;
+
+  // An enum describing greeting type
+  enum GreetingStyle {
+    FRIENDLY = 0;
+    FORMAL = 1;
+    CASUAL = 2;
+  }
+
+  GreetingStyle style = 6;
+}
+
+// Response message for the greet service
+message GreetResponse {
+  string message = 1;
+  int32 code = 2;
+}
+
+// A simple greeting service
+service Greeter {
+  // Unary RPC that returns a greeting for the given request
+  rpc SayHello (GreetRequest) returns (GreetResponse);
 }

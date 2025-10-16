@@ -19,16 +19,28 @@ This will:
 2. Compile the Java code
 3. Create a fat JAR with all dependencies
 
-## Generating Protobuf Classes
+## Protobuf updates (new)
 
-The project uses the `protobuf-gradle-plugin` to automatically generate Java classes from `.proto` files. The proto files are located in `src/main/proto`.
+The protobuf definitions were expanded to include richer message types and simple service definitions.
 
-To manually generate protobuf classes:
+- `src/main/proto/GreetRequest.proto` now contains:
+  - fields: `name`, `age`, `tags` (repeated), nested `Address`, `attrs` map, and `style` enum
+  - `GreetResponse` message
+  - `service Greeter { rpc SayHello (GreetRequest) returns (GreetResponse); }`
+
+- `src/main/proto/GreetRequestNew.proto` now contains:
+  - fields: `newName`, `email`, `scores` (repeated), nested `Metadata`, and `priority` enum
+  - `GreetResponseNew` message
+  - `service GreeterNew { rpc SayHelloNew (GreetRequestNew) returns (GreetResponseNew); }`
+
+To regenerate Java classes from the updated protos manually:
 ```bash
 ./gradlew generateProto
 ```
 
 Generated classes will be in `build/generated/sources/proto/main/java`.
+
+If you want gRPC stubs (server/client code), add the gRPC plugin and enable `grpc` generation in the protobuf Gradle block (I can add this if desired).
 
 ## Testing the Endpoints
 
@@ -51,11 +63,20 @@ curl --location 'http://localhost:8080/ReadHelloWorld.v1' \
 ```
 
 ### 3. Test Protobuf Endpoint
+You can produce test payloads locally using the included test writer utility. Run the test writer to create binary protobuf payloads for the old and new protos:
+```bash
+./gradlew -q run -PmainClass=com.example.ProtobufTestWriter
+```
+
+This writes two files to `src/test/resources`:
+- `greet-request.bin` (old proto)
+- `greet-request-new.bin` (new proto)
+
+Then use `curl` to send either file to the Protobuf endpoint. Example:
 ```bash
 curl --location 'http://localhost:8080/GreetProto.v1' \
 --header 'Content-Type: application/octet-stream' \
---header 'Authorization: Bearer {{bearerToken}}' \
---data-binary '@/C:/Users/KAVUR/one-data/micro-verticle-1/src/test/resources/greet-request.bin'
+--data-binary @src/test/resources/greet-request.bin
 ```
 
 ### 4. Undeploy the Verticle
