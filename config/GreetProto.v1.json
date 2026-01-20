@@ -3,5 +3,6 @@
   "version": "1.0.0",
   "description": "Verticle for Protobuf demo",
   "verticleClass": "com.example.verticles.ProtoVerticle",
+  "initClass": "com.example.verticles.CommonInit",
   "address": "GreetProto.v1"
 }

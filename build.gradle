@@ -14,9 +14,13 @@ repositories {
 
 dependencies {
     implementation 'com.example:vertx-on-demand:1.0.0'
-    implementation 'io.vertx:vertx-core:5.0.1'
-    implementation 'io.vertx:vertx-web:5.0.1'
+    implementation 'io.vertx:vertx-core:5.0.7'
+    implementation 'io.vertx:vertx-web:5.0.7'
     implementation 'com.google.protobuf:protobuf-java:4.31.1'
+
+    // Logging
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
 }
 
 java {

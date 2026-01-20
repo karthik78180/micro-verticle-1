@@ -3,5 +3,6 @@
     "version": "1.0.0",
     "description": "Sample verticle for demo",
     "verticleClass": "com.example.verticles.SampleVerticle",
-  "address": "ReadHelloWorld.v1"
+    "initClass": "com.example.verticles.CommonInit",
+    "address": "ReadHelloWorld.v1"
 }

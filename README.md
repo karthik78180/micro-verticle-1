@@ -87,12 +87,105 @@ curl --location 'http://localhost:8080/undeploy' \
 --data '{ "repo": "micro-verticle-1" }'
 ```
 
+## Guice Dependency Injection
+
+This verticle demonstrates Guice DI integration with the vertx-on-demand server. Each verticle can have its own initialization and cleanup logic.
+
+### Verticle Lifecycle
+
+1. **Instantiation**: Guice creates the verticle and injects dependencies
+2. **start()**: Called when deployed, receive configuration
+3. **init()**: Called once before first request - initialize resources here
+4. **handle()**: Called for each request
+5. **shutdown()**: Called during undeployment - cleanup resources
+6. **stop()**: Called when undeployed
+
+### Example: SampleVerticle
+
+The included `SampleVerticle` demonstrates the full DI pattern:
+
+```java
+public class SampleVerticle implements VerticleLifecycle<JsonObject>, VerticleInitializer {
+    private final InitializationService initService;  // Injected by Guice
+    private String greetingPrefix;                    // Initialized in init()
+
+    public SampleVerticle(InitializationService initService) {
+        this.initService = initService;
+    }
+
+    @Override
+    public void init() throws Exception {
+        // Initialize resources once before first request
+        greetingPrefix = initService.getGlobalConfig()
+            .getString("greeting_prefix", "Hello");
+    }
+
+    @Override
+    public void handle(RoutingContext context) {
+        // Use initialized resource
+        String name = context.body().asJsonObject().getString("name");
+        context.response().end(greetingPrefix + " " + name);
+    }
+
+    @Override
+    public void shutdown() throws Exception {
+        // Cleanup resources
+        greetingPrefix = null;
+    }
+}
+```
+
+### Creating Your Own Verticle with DI
+
+1. Implement both `VerticleLifecycle<T>` and `VerticleInitializer`
+2. Add a constructor that accepts the dependencies you need (Guice will inject them)
+3. Initialize resources in `init()` method
+4. Use initialized resources in `handle()` method
+5. Cleanup in `shutdown()` method
+
+Example with database connection:
+
+```java
+public class DatabaseVerticle implements VerticleLifecycle<JsonObject>, VerticleInitializer {
+    private final InitializationService initService;
+    private DatabasePool dbPool;
+
+    public DatabaseVerticle(InitializationService initService) {
+        this.initService = initService;
+    }
+
+    @Override
+    public void init() throws Exception {
+        String dbUrl = initService.getGlobalConfig().getString("db_url");
+        dbPool = new DatabasePool(dbUrl);
+        dbPool.connect();
+    }
+
+    @Override
+    public void handle(RoutingContext context) {
+        dbPool.query("SELECT * FROM users")
+            .onSuccess(result -> context.response().end(result.toJson()))
+            .onFailure(err -> context.response().setStatusCode(500).end(err.getMessage()));
+    }
+
+    @Override
+    public void shutdown() throws Exception {
+        if (dbPool != null) {
+            dbPool.disconnect();
+        }
+    }
+}
+```
+
 ## Project Structure
 
 - `src/main/proto/`: Contains protobuf definition files
 - `src/main/java/com/example/verticles/`: Contains the verticle implementations
+  - `SampleVerticle.java`: Example verticle with Guice DI (demonstrating init/shutdown)
+  - `ProtoVerticle.java`: Handles protobuf requests
+  - `ProtoVerticleNew.java`: Handles new protobuf format
 - `config/`: Contains verticle configuration files
-  - `ReadHelloWorld.v1.json`: Configuration for JSON handling verticle
+  - `ReadHelloWorld.v1.json`: Configuration for SampleVerticle
   - `GreetProto.v1.json`: Configuration for Protobuf handling verticle
 
 ## Working with Protocol Buffers
