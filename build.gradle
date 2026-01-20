@@ -93,3 +93,7 @@ shadowJar {
     mergeServiceFiles()
     from "$buildDir/generated/sources/proto/main/java"
 }
+
+tasks.withType(Test).configureEach {
+    failOnNoDiscoveredTests = false
+}

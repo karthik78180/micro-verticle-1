@@ -11,4 +11,4 @@ plugins {
 }
 
 rootProject.name = "micro-verticle-1"
-include("app")
+//include("app")
